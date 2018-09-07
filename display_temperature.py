@@ -48,25 +48,33 @@ class Example(QtGui.QWidget):
     def paintEvent(self, event):
         qp = QtGui.QPainter()
         qp.begin(self)
-        self.drawNode (event, qp, 'casu-053', 50, 50)
-        self.drawNode (event, qp, 'casu-054', 250, 50)
-        self.drawNode (event, qp, 'casu-048', 450, 50)
+        self.drawNode (event, qp, 'A', 50, 50)
+        self.drawNode (event, qp, 'B', 250, 50)
+        self.drawNode (event, qp, 'C', 450, 50)
+#        self.drawNode (event, qp, 'casu-053', 50, 50)
+#        self.drawNode (event, qp, 'casu-054', 250, 50)
+#        self.drawNode (event, qp, 'casu-048', 450, 50)
         qp.end()
 
     def keyPressEvent (self, event):
-        print ('Key event {}'.format (event))
-        self.timer.stop ()
+        if event is not None:
+            print ('Key event {}'.format (event))
+            self.timer.stop ()
+            sys.exit (0)
 
     def update_casu_temp (self):
         # for casu_number, casu_interface in self.dict_casus_interface:
         #     self.temp_data [casu_number] = casu_interface.get_temp (assisipy.TEMP_WAX)
         for node_id in self.temp_data.keys ():
-            what = self.node_listener.get_latest_inval (node_id)
-            if what is not None:
-                print (what)
-                self.temp_data [node_id] = what.get ('Temp')[-1]
+            #what = self.node_listener.get_latest_inval (node_id)
+            ret, newstatedata = self.node_listener.process_all_input(
+                node_id,
+                stdstr=False,
+             verb=False)
+            if ret:
+                self.temp_data [node_id] = float (newstatedata ['tref'])
             else:
-                print ('Nothing for {}'.format (event))
+                print ('Nothing for {}'.format (node_id))
             
     def timerEvent (self, event):
         print ('time')
@@ -86,13 +94,12 @@ class Example(QtGui.QWidget):
             pen.setWidth (10)
             qp.setPen (pen)
             qp.drawEllipse (x, y, 100, 100)
-            # qp.setPen (QtGui.QColor (255, 255, 255))
-            # qp.drawEllipse (x + 5, y + 5, 90, 90)
                        
 def main():
     app = QtGui.QApplication(sys.argv)
     print (sys.argv)
-    ex = Example(['casu-053', 'casu-048', 'casu-054'], '/home/assisi/assisi/pedro/ARS18/cfgs/1-line3/1-line3.conf', '/home/assisi/assisi/pedro/ARS18/cfgs/1-line3/')
+    ex = Example(['A', 'B', 'C'], '/home/assisi/assisi/pedro/ARS18/cfgs/1-line3/1-line3.conf', '/home/assisi/assisi/pedro/ARS18/cfgs/1-line3/')
+#    ex = Example(['casu-053', 'casu-048', 'casu-054'], '/home/assisi/assisi/pedro/ARS18/cfgs/1-line3/1-line3.conf', '/home/assisi/assisi/pedro/ARS18/cfgs/1-line3/')
     sys.exit(app.exec_())
 
 
