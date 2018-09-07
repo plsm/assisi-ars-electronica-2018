@@ -41,24 +41,32 @@ class Example(QtGui.QWidget):
         self.timer.start (SPEED, self)
         
     def initUI(self):      
-        self.setGeometry(300, 300, 280, 170)
+        self.setGeometry(0, 0, 600, 200)
         self.setWindowTitle('CASU temperature')
         self.show()
 
     def paintEvent(self, event):
         qp = QtGui.QPainter()
         qp.begin(self)
-        self.drawNode (event, qp, 32, 100, 100)
+        self.drawNode (event, qp, 'casu-053', 50, 50)
+        self.drawNode (event, qp, 'casu-054', 250, 50)
+        self.drawNode (event, qp, 'casu-048', 450, 50)
         qp.end()
+
+    def keyPressEvent (self, event):
+        print ('Key event {}'.format (event))
+        self.timer.stop ()
 
     def update_casu_temp (self):
         # for casu_number, casu_interface in self.dict_casus_interface:
         #     self.temp_data [casu_number] = casu_interface.get_temp (assisipy.TEMP_WAX)
-        for node_id in self.list_nodes:
+        for node_id in self.temp_data.keys ():
             what = self.node_listener.get_latest_inval (node_id)
             if what is not None:
                 print (what)
                 self.temp_data [node_id] = what.get ('Temp')[-1]
+            else:
+                print ('Nothing for {}'.format (event))
             
     def timerEvent (self, event):
         print ('time')
@@ -84,7 +92,7 @@ class Example(QtGui.QWidget):
 def main():
     app = QtGui.QApplication(sys.argv)
     print (sys.argv)
-    ex = Example([], sys.argv [1])
+    ex = Example(['casu-053', 'casu-048', 'casu-054'], '/home/assisi/assisi/pedro/ARS18/cfgs/1-line3/1-line3.conf', '/home/assisi/assisi/pedro/ARS18/cfgs/1-line3/')
     sys.exit(app.exec_())
 
 
